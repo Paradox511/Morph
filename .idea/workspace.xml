@@ -1,29 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="870efee2-e7f1-4d77-8f39-ea354a71b00b" name="Changes" comment="" />
+    <list default="true" id="9984d54b-5f00-47d6-bf70-9e4f8e527d87" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 6
-}]]></component>
-  <component name="ProjectId" id="2dDV04T8Gfc0e0E2YT44VIexobW" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="2bOXX6eHm6q3BGarLBgy2NFKmWh" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python.morph.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master"
+    "RunOnceActivity.ShowReadmeOnStart": "true"
   }
 }]]></component>
   <component name="SharedIndexes">
@@ -36,11 +45,11 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="870efee2-e7f1-4d77-8f39-ea354a71b00b" name="Changes" comment="" />
-      <created>1709542409807</created>
+      <changelist id="9984d54b-5f00-47d6-bf70-9e4f8e527d87" name="Changes" comment="" />
+      <created>1706087135653</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1709542409807</updated>
+      <updated>1706087135653</updated>
     </task>
     <servers />
   </component>
