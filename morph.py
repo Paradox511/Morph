@@ -1,6 +1,5 @@
 from datetime import datetime
 import speech_recognition as sr
-import pyttsx3
 import tkinter as tk
 from tkinter import ttk
 from re import search
@@ -12,35 +11,19 @@ import pyttsx3
 import time
 from datetime import date, datetime
 #Lấy thông tin từ web
-import requests
-import ctypes
-import json
-import urllib
-import urllib.request as urllib2
 #Mở âm thanh
 from playsound import playsound
 #truy cập, xử lí file hệ thống
 import os
-#Thư viện Tkinter hỗ trợ giao diện
-from tkinter.ttk import Frame, Button, Style
-from tkinter import *
-from PIL import Image, ImageTk
-import tkinter.messagebox as mbox
 #Truy cập web, trình duyệt, hỗ trợ tìm kiếm
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from webdriver_manager.chrome import ChromeDriverManager
+from googletrans import Translator
 from youtube_search import YoutubeSearch
-#from youtubesearchpython import SearchVideos
 import wikipedia
-#Chọn ngẫu nhiên
-import random
-#chuyển chữ số sang số
-from word2number import w2n #tiếng anh
-from vietnam_number import w2n # tiếng việt
 import queue
-import threading
 import requests
+import subprocess
+from googlesearch import search
+from PIL import Image,ImageTk
 
 
 # Initialize text-to-speech engine
@@ -53,10 +36,13 @@ recognizer = sr.Recognizer()
 response_queue = queue.Queue()
 
 # Function to speak given text
-def speak(text):
+def speak(text,language='en'):
+    if language == 'vi':
+        engine.setProperty('voice', 'Vietnamese')  # Set the voice to Vietnamese
+    else:
+        engine.setProperty('voice', 'english')  # Set the voice to English
     engine.say(text)
     engine.runAndWait()
-
 # Function to handle speech input
 def handle_speech_input():
     with sr.Microphone() as source:
@@ -72,6 +58,7 @@ def handle_speech_input():
     except Exception as e:
         print("Error:", e)
         speak("Sorry, I couldn't understand you.")
+    pass
 
 # Function to handle text input
 def handle_text_input(event=None):
@@ -80,32 +67,39 @@ def handle_text_input(event=None):
 
 
 def check_weather(location):
-    api_key = "pm4fIqzuGb2we74pgxjbG9cpgsXi0eT4"
-    url = f"https://api.tomorrow.io/v4/timelines?location={location}&fields=temperature,weatherCode,precipitationProbability,windSpeed&units=metric&timesteps=current&apikey={api_key}"
+    api_key = "d87af97fceea94d4f615de0195a5e26a"
+    base_url = "https://api.openweathermap.org/data/2.5/weather"
+    params = {
+        "q": location,
+        "appid": api_key,
+        "units": "metric"  # Use "imperial" for Fahrenheit
+    }
 
     try:
-        response = requests.get(url)
+        response = requests.get(base_url, params=params)
         data = response.json()
 
         if response.status_code == 200:
-            current_data = data["data"]["timelines"][0]["intervals"][0]["values"]
-            temperature = current_data["temperature"]
-            weather_code = current_data["weatherCode"]
-            precipitation_probability = current_data["precipitationProbability"]
-            wind_speed = current_data["windSpeed"]
+            weather_description = data["weather"][0]["description"]
+            temperature = data["main"]["temp"]
+            humidity = data["main"]["humidity"]
+            wind_speed = data["wind"]["speed"]
 
-            # Convert weather code to description (you can create a mapping based on Tomorrow.io's documentation)
-            weather_description = "Weather description based on weather code"
+            weather_info = {
+                "description": weather_description,
+                "temperature": temperature,
+                "humidity": humidity,
+                "wind_speed": wind_speed
+            }
 
-            weather_info = f"Weather in {location.capitalize()}:\nDescription: {weather_description}\nTemperature: {temperature}°C\nPrecipitation Probability: {precipitation_probability}%\nWind Speed: {wind_speed} m/s"
+            return weather_info
         else:
-            weather_info = "Sorry, I couldn't fetch the weather information at the moment."
+            print(f"Failed to retrieve weather data: {data['message']}")
+            return None
 
     except Exception as e:
-        weather_info = f"An error occurred while fetching weather information: {str(e)}"
-
-    return weather_info
-
+        print(f"An error occurred: {e}")
+        return None
 
 def search_youtube(query, max_results=5):
     try:
@@ -120,7 +114,71 @@ def search_youtube(query, max_results=5):
         print("Error occurred during YouTube search:", e)
         return None
 
+def open_application(application_name):
+    try:
+        subprocess.Popen([application_name])  # Replace with the actual application name or path
+    except FileNotFoundError:
+        print("Application not found.")
 
+def get_news_headlines():
+    news_api_key = "de6633428bf142d0bc51918f7eb5da78"
+    url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={news_api_key}"
+    try:
+        response = requests.get(url)
+        news_data = response.json()
+        headlines = [article['title'] for article in news_data['articles'][:3]]
+        return headlines
+    except Exception as e:
+        print("Error fetching news:", e)
+        return []
+
+def search_wikipedia(query):
+    try:
+        result = wikipedia.summary(query, sentences=2)
+        return result
+    except wikipedia.exceptions.DisambiguationError as e:
+        return "Too many results. Please be more specific."
+    except wikipedia.exceptions.PageError as e:
+        return "No information found. Please try again."
+
+
+def play_music(song_name):
+    # Replace with your music directory
+    music_directory = "C:/Users/ADMIN/Desktop/Python/MorphAI/music"
+    song_path = os.path.join(music_directory, song_name)
+
+    if os.path.exists(song_path):
+        os.system(f"start {song_path}")  # On Windows
+        # For Linux or MacOS, you can use something like:
+        # os.system(f"xdg-open {song_path}")
+    else:
+        print("Song not found.")
+
+def func():
+    text = """
+        Supported functions:
+        1.Greeting
+        2.Date, Time
+        3.Check weather
+        4.Google search
+        5.Youtube search
+        6.play local music
+        7.Wikipedia search
+        8.Translate text (eng <--> vi)
+        9.Check news headlines
+        10.Open application
+        11.Exit
+    """
+    speak(text)
+    return text
+def translate_text(text):
+    translator = Translator()
+    try:
+        translated_text = translator.translate(text, dest='vi')
+        return translated_text.text
+    except Exception as e:
+        print("Translation error:", e)
+        return "Sorry, translation failed."
 
 # Function to handle both speech and text input
 # Function to handle both speech and text input
@@ -130,16 +188,54 @@ def handle_input(query):
 
     if "hello" in query.lower():
         response_text = "Hello! How can I assist you?"
+        speak(response_text)
+    elif "function" in query.lower():
+        response_text = func()
     elif "time" in query.lower():
         current_time = datetime.now().strftime("%I:%M %p")  # Get current time
         response_text = f"The current time is {current_time}."
+        speak(response_text)
     elif "date" in query.lower():
         today = datetime.today().strftime("%A, %m/%d/%Y")
-        response_text= f"Today is {today}"
+        response_text = f"Today is {today}"
+        speak(response_text)
     elif "weather" in query.lower():
         location = query.lower().replace("weather", "").strip()
         weather_info = check_weather(location)
-        response_text = weather_info
+        if weather_info:
+            response_text = f"Weather Information in {location}:\n"+f"Description: {weather_info['description']}\n"+f"Temperature: {weather_info['temperature']}°C\n"+f"Humidity: {weather_info['humidity']}%\n"+f"Wind Speed: {weather_info['wind_speed']} m/s"
+            speak(response_text)
+        else:
+            response_text = "Failed to retrieve weather information."
+            speak(response_text)
+    elif "google" in query.lower():
+        search_query = query.lower().replace("google", "").strip()
+        url = f"google.com/search?q={search_query}"
+        wb.open(url)
+        response_text = f"Here are your results on {search_query}"
+    elif "open" in query.lower():
+        application = query.lower().replace("open","").strip()
+        response_text = f"Opening {application}"
+        open_application(application)
+    elif "play music" in query.lower():
+        song = query.lower().replace("play music","").strip()
+        response_text = f"Now playing {song}"
+        play_music(song)
+    elif "news" in query.lower():
+        headlines = get_news_headlines()
+        response_text = f"Here are the latest news headlines:\n"
+        for i,headline in enumerate(headlines):
+            response_text += f"{i+1}. {headline}\n"
+        speak(response_text)
+    elif "wikipedia" in query.lower() or "wiki" in query.lower():
+        search_query = query.lower().replace("wikipedia", "").strip()
+        response_text = search_wikipedia(search_query)
+        speak(response_text)
+    elif "translate" in query.lower():
+        text_to_translate = query.lower().replace("translate", "").strip()
+        translated = translate_text(text_to_translate)
+        speak(translated, language='vi')
+        response_text = translated
     elif "youtube" in query.lower():
         search_query = query.lower().replace("youtube", "").strip()
         search_results = search_youtube(search_query)
@@ -153,11 +249,12 @@ def handle_input(query):
         selected_index = int(query) - 1
         if 0 <= selected_index < len(search_results):
             selected_video = search_results[selected_index]
-            response_text = f"Opening video: {selected_video['title']}"
+            response_text = f"Opening: {selected_video['title']}"
             speak(response_text)
             speak("Enjoy your video!")
             # Open the selected video URL
             wb.open(selected_video['url'])
+            search_results=None
             return  # Exit function after opening the video
         else:
             response_text = "Invalid selection. Please choose a number within the range."
@@ -167,15 +264,20 @@ def handle_input(query):
     else:
         response_text = "Sorry, I couldn't understand your request."
 
-    # Remove trailing newline characters before inserting text into text box
     response_text = response_text.strip()
-
-    # Insert response text into text box
-    text_box.insert(tk.END, response_text + "\n")  # Update text box with response immediately
+    text_box.insert(tk.END, response_text + "\n")
     response_queue.put(response_text)
 
-    entry.delete(0, tk.END)  # Clear the entry after processing the input
+    text_box.yview_moveto(1.0)
+    entry.delete(0, tk.END)
+    pass
 
+
+
+def speak_search_results(search_results):
+    for i, result in enumerate(search_results):
+        speak(f"{i+1}. {result['title']}")
+        time.sleep(2)  # Adjust the delay between speaking each result
 
 
 
@@ -192,28 +294,33 @@ def speak_responses():
 # GUI setup
 root = tk.Tk()
 root.title("MorphAI")
+root.geometry("600x400")
 
-# Speech button
-speech_button = ttk.Button(root, text="Speech Input", command=handle_speech_input)
-speech_button.pack(pady=10)
+# Create frames
+input_frame = ttk.Frame(root)
+output_frame = ttk.Frame(root)
+input_frame.pack(pady=10)
+output_frame.pack(padx=10, pady=(0, 10), fill=tk.BOTH, expand=True)
 
 # Text entry
-entry = ttk.Entry(root, width=50)
-entry.pack(pady=5)
-entry.bind("<Return>",handle_text_input)
+entry = ttk.Entry(input_frame, width=50)
+entry.grid(row=0, column=0, padx=5, pady=5)
+entry.bind("<Return>", handle_text_input)
 
 # Text button
-text_button = ttk.Button(root, text="Text Input", command=handle_text_input)
-text_button.pack(pady=5)
+text_button = ttk.Button(input_frame, text="Submit", command=handle_text_input)
+text_button.grid(row=0, column=1, padx=5, pady=5)
+
+# Speech button with icon
+speech_icon = Image.open("Microphone.png")
+speech_icon = speech_icon.resize((24, 24))
+speech_icon = ImageTk.PhotoImage(speech_icon)
+speech_button = ttk.Button(input_frame, image=speech_icon, command=handle_speech_input)
+speech_button.grid(row=0, column=2, padx=5, pady=5)
 
 # Text box to display AI's responses
-text_box = tk.Text(root, height=10, width=50)
-text_box.pack(pady=10)
+text_box = tk.Text(output_frame, height=10, width=50)
+text_box.pack(fill=tk.BOTH, expand=True)
 
-# Start the thread for speaking responses
-response_thread = threading.Thread(target=speak_responses)
-response_thread.daemon = True  # Make the thread a daemon so it exits when the main program exits
-response_thread.start()
-
-# Run the GUI application
+# Run the GUI
 root.mainloop()
